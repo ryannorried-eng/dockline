@@ -12,15 +12,9 @@ export default async function LeadsPage() {
   } catch {
     return (
       <div className="p-8">
-        <div
-          className="rounded-xl p-6 text-center"
-          style={{
-            background: "rgba(239, 68, 68, 0.08)",
-            border: "1px solid rgba(239, 68, 68, 0.2)",
-          }}
-        >
-          <p className="text-red-400 font-semibold">Unable to load leads</p>
-          <p className="text-red-400/70 text-sm mt-1">
+        <div className="rounded-xl p-6 text-center bg-red-50 border border-red-200">
+          <p className="text-red-600 font-semibold">Unable to load leads</p>
+          <p className="text-red-500 text-sm mt-1">
             Check that the backend API is running.
           </p>
         </div>
@@ -29,30 +23,18 @@ export default async function LeadsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto page-enter">
+    <div className="p-8 space-y-6 max-w-7xl mx-auto page-enter">
       {/* Header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-[#F8FAFC] tracking-tight">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <h1 className="text-[24px] font-bold text-[#0F172A] tracking-tight">
             Leads
           </h1>
-          <p className="text-sm text-[#94A3B8] mt-1.5">
-            All inbound leads and conversations
-          </p>
-        </div>
-        {/* Lead count badge */}
-        <div
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-full"
-          style={{
-            background: "rgba(6, 182, 212, 0.1)",
-            border: "1px solid rgba(6, 182, 212, 0.2)",
-          }}
-        >
-          <div className="w-1.5 h-1.5 rounded-full bg-[#06B6D4]" />
-          <span className="text-xs font-bold text-[#06B6D4] tabular-nums">
-            {leads.length} lead{leads.length !== 1 ? "s" : ""}
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F1F5F9] text-[#475569]">
+            {leads.length}
           </span>
         </div>
+        <p className="text-sm text-[#64748B]">All inbound leads and conversations</p>
       </div>
 
       <LeadsTable leads={leads} showFilters />

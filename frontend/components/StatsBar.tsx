@@ -12,78 +12,53 @@ const statCards = [
     key: "total_leads" as const,
     label: "Total Leads",
     icon: Users,
-    iconColor: "text-[#06B6D4]",
-    iconBg: "bg-[#06B6D4]/10",
-    glowColor: "rgba(6, 182, 212, 0.06)",
+    iconBg: "bg-[#EFF6FF]",
+    iconColor: "text-[#2563EB]",
   },
   {
     key: "qualified_leads" as const,
     label: "Qualified",
     icon: CheckCircle,
-    iconColor: "text-[#10B981]",
-    iconBg: "bg-[#10B981]/10",
-    glowColor: "rgba(16, 185, 129, 0.06)",
+    iconBg: "bg-[#F0FDF4]",
+    iconColor: "text-[#16A34A]",
   },
   {
     key: "new_today" as const,
     label: "New Today",
     icon: Clock,
-    iconColor: "text-[#06B6D4]",
-    iconBg: "bg-[#06B6D4]/10",
-    glowColor: "rgba(6, 182, 212, 0.06)",
+    iconBg: "bg-[#FFFBEB]",
+    iconColor: "text-[#D97706]",
   },
   {
     key: "messages_sent" as const,
     label: "Messages Sent",
     icon: MessageSquare,
-    iconColor: "text-[#0E7490]",
-    iconBg: "bg-[#0E7490]/10",
-    glowColor: "rgba(14, 116, 144, 0.06)",
+    iconBg: "bg-[#F5F3FF]",
+    iconColor: "text-[#7C3AED]",
   },
 ];
 
 export default function StatsBar({ stats }: StatsBarProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {statCards.map(({ key, label, icon: Icon, iconColor, iconBg, glowColor }) => (
+      {statCards.map(({ key, label, icon: Icon, iconBg, iconColor }) => (
         <div
           key={key}
-          className="relative group rounded-xl p-5 overflow-hidden cursor-default transition-all duration-200 hover:-translate-y-0.5"
+          className="bg-white rounded-xl p-6"
           style={{
-            background: "rgba(15, 32, 64, 0.85)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            border: "1px solid rgba(14, 116, 144, 0.2)",
-            boxShadow: "0 4px 16px rgba(0, 0, 0, 0.2)",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.boxShadow =
-              "0 8px 28px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(14, 116, 144, 0.35)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.boxShadow =
-              "0 4px 16px rgba(0, 0, 0, 0.2)";
+            boxShadow:
+              "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
           }}
         >
-          {/* Hover glow */}
           <div
-            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-            style={{
-              background: `radial-gradient(ellipse at top left, ${glowColor}, transparent 70%)`,
-            }}
-          />
-
-          <div className="relative flex items-center gap-4">
-            <div className={`p-2.5 rounded-lg ${iconBg} shrink-0`}>
-              <Icon className={`w-5 h-5 ${iconColor}`} />
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold text-[#06B6D4] tabular-nums leading-none tracking-tight">
-                {stats[key]}
-              </p>
-              <p className="text-xs text-[#94A3B8] mt-1 font-medium">{label}</p>
-            </div>
+            className={`w-9 h-9 rounded-lg flex items-center justify-center mb-4 ${iconBg}`}
+          >
+            <Icon className={`w-4 h-4 ${iconColor}`} />
           </div>
+          <p className="text-[32px] font-bold text-[#0F172A] leading-none tabular-nums">
+            {stats[key]}
+          </p>
+          <p className="text-sm text-[#64748B] mt-2">{label}</p>
         </div>
       ))}
     </div>

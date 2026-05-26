@@ -22,10 +22,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable} style={{ backgroundColor: "#0A1628" }}>
-      <body className="flex h-screen overflow-hidden bg-[#0A1628]">
+    <html lang="en" className={inter.variable} style={{ backgroundColor: "#F8F9FA" }}>
+      <body className="flex h-screen overflow-hidden bg-[#F8F9FA]">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto bg-[#0A1628]">
+        <main className="flex-1 overflow-y-auto bg-[#F8F9FA]">
           {children}
         </main>
       </body>
