@@ -1,7 +1,14 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Settings, Play } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  MessageSquare,
+  Star,
+  Settings,
+  Play,
+} from "lucide-react";
 
 const pageConfig: Record<
   string,
@@ -9,6 +16,8 @@ const pageConfig: Record<
 > = {
   "/": { label: "Dashboard", icon: LayoutDashboard },
   "/leads": { label: "Leads", icon: Users },
+  "/conversations": { label: "Conversations", icon: MessageSquare },
+  "/reviews": { label: "Reviews", icon: Star },
   "/settings": { label: "Settings", icon: Settings },
 };
 
@@ -18,6 +27,9 @@ export default function TopBar() {
   let config = pageConfig[pathname];
   if (!config) {
     if (pathname.startsWith("/leads")) config = pageConfig["/leads"];
+    else if (pathname.startsWith("/conversations"))
+      config = pageConfig["/conversations"];
+    else if (pathname.startsWith("/reviews")) config = pageConfig["/reviews"];
     else config = pageConfig["/"];
   }
 
