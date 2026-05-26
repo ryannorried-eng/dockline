@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "@/lib/utils";
 import StatusBadge from "./StatusBadge";
 import type { LeadSummary } from "@/lib/api";
-import { MessageSquare, Anchor, ChevronRight } from "lucide-react";
+import { PhoneMissed, MessageSquare, Phone, Anchor } from "lucide-react";
 
 interface LeadsTableProps {
   leads: LeadSummary[];
@@ -13,17 +13,97 @@ interface LeadsTableProps {
 }
 
 const statusBorderColor: Record<string, string> = {
-  new: "#94A3B8",
+  new: "#DDD9D3",
   active: "#D97706",
   qualified: "#16A34A",
 };
 
-const filterOptions: { label: string; value: string }[] = [
-  { label: "All", value: "all" },
-  { label: "New", value: "new" },
-  { label: "Active", value: "active" },
-  { label: "Qualified", value: "qualified" },
-];
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function SourceCell({ source }: { source: string }) {
+  if (source === "missed-call") {
+    return (
+      <div className="flex items-center" style={{ gap: 6 }}>
+        <PhoneMissed style={{ width: 13, height: 13, color: "#9B9589" }} />
+        <span style={{ fontSize: 12, color: "#6B6560" }}>Missed call</span>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center" style={{ gap: 6 }}>
+      <MessageSquare style={{ width: 13, height: 13, color: "#9B9589" }} />
+      <span style={{ fontSize: 12, color: "#6B6560" }}>Inbound SMS</span>
+    </div>
+  );
+}
+
+function ContactCell({ lead }: { lead: LeadSummary }) {
+  const hasName = Boolean(lead.name);
+
+  return (
+    <div className="flex items-center" style={{ gap: 10 }}>
+      {/* Avatar */}
+      <div
+        className="flex items-center justify-center shrink-0"
+        style={{
+          width: 32,
+          height: 32,
+          borderRadius: "50%",
+          backgroundColor: hasName ? "#DCFCE7" : "#F0EDE8",
+          color: hasName ? "#166534" : "#9B9589",
+          fontSize: 11,
+          fontWeight: 500,
+        }}
+      >
+        {hasName ? (
+          getInitials(lead.name!)
+        ) : (
+          <Phone style={{ width: 13, height: 13 }} />
+        )}
+      </div>
+
+      {/* Name + phone */}
+      <div>
+        {hasName ? (
+          <>
+            <p
+              style={{ fontSize: 13, fontWeight: 500, color: "#1A1A1A", lineHeight: 1.3 }}
+            >
+              {lead.name}
+            </p>
+            <p
+              className="font-mono"
+              style={{ fontSize: 11, color: "#9B9589" }}
+            >
+              {lead.phone_number}
+            </p>
+          </>
+        ) : (
+          <>
+            <p
+              className="font-mono"
+              style={{ fontSize: 13, color: "#4F46E5", fontWeight: 500, lineHeight: 1.3 }}
+            >
+              {lead.phone_number}
+            </p>
+            <p style={{ fontSize: 11, color: "#9B9589", fontStyle: "italic" }}>
+              Name unknown
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const GRID_COLUMNS = "2fr 1.2fr 1.5fr 2fr 120px";
 
 export default function LeadsTable({ leads, showFilters }: LeadsTableProps) {
   const router = useRouter();
@@ -34,111 +114,151 @@ export default function LeadsTable({ leads, showFilters }: LeadsTableProps) {
       ? leads.filter((l) => l.status === activeFilter)
       : leads;
 
+  const totalCount = leads.length;
+  const activeCount = leads.filter((l) => l.status === "active").length;
+  const qualifiedCount = leads.filter((l) => l.status === "qualified").length;
+
+  const filterPills = [
+    { label: `All ${totalCount}`, value: "all", bg: "#F0EDE8", color: "#6B6560" },
+    { label: `Active ${activeCount}`, value: "active", bg: "#FEF9C3", color: "#854D0E" },
+    { label: `Qualified ${qualifiedCount}`, value: "qualified", bg: "#DCFCE7", color: "#166534" },
+  ];
+
   const emptyState = (
     <div
-      className="bg-white rounded-xl p-12 text-center"
       style={{
-        boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+        padding: "48px 24px",
+        textAlign: "center",
+        backgroundColor: "#FFFFFF",
       }}
     >
-      <div className="flex justify-center mb-5">
-        <div className="w-14 h-14 rounded-full bg-[#F1F5F9] flex items-center justify-center">
-          <Anchor className="w-6 h-6 text-[#94A3B8]" />
-        </div>
+      <div
+        className="flex items-center justify-center mx-auto"
+        style={{
+          width: 48,
+          height: 48,
+          borderRadius: "50%",
+          backgroundColor: "#F0EDE8",
+          marginBottom: 12,
+        }}
+      >
+        <Anchor style={{ width: 20, height: 20, color: "#9B9589" }} />
       </div>
-      <h3 className="text-sm font-semibold text-[#0F172A] mb-2">No leads yet</h3>
-      <p className="text-sm text-[#64748B] max-w-xs mx-auto leading-relaxed">
+      <p style={{ fontSize: 13, fontWeight: 500, color: "#1A1A1A" }}>
+        No leads yet
+      </p>
+      <p style={{ fontSize: 12, color: "#6B6560", marginTop: 4 }}>
         Leads will appear here when missed calls come in or customers text the
         business line.
       </p>
     </div>
   );
 
-  if (leads.length === 0) return emptyState;
+  if (leads.length === 0) {
+    return (
+      <div
+        style={{
+          backgroundColor: "#FFFFFF",
+          border: "1px solid #EEEBE6",
+          borderRadius: 10,
+          overflow: "hidden",
+        }}
+      >
+        {emptyState}
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-3">
-      {/* Filter bar */}
-      {showFilters && (
-        <div className="flex items-center gap-2 flex-wrap">
-          {filterOptions.map((opt) => {
-            const isActive = activeFilter === opt.value;
-            const count =
-              opt.value === "all"
-                ? leads.length
-                : leads.filter((l) => l.status === opt.value).length;
-            return (
-              <button
-                key={opt.value}
-                onClick={() => setActiveFilter(opt.value)}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 ${
-                  isActive
-                    ? "bg-[#2563EB] text-white border border-[#2563EB]"
-                    : "bg-white text-[#64748B] border border-[#E2E8F0] hover:border-[#CBD5E1] hover:text-[#0F172A]"
-                }`}
-              >
-                {opt.label}
-                <span
-                  className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                    isActive
-                      ? "bg-white/20 text-white"
-                      : "bg-[#F1F5F9] text-[#64748B]"
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
+    <div
+      style={{
+        backgroundColor: "#FFFFFF",
+        border: "1px solid #EEEBE6",
+        borderRadius: 10,
+        overflow: "hidden",
+      }}
+    >
+      {/* Card Header */}
+      <div
+        className="flex items-center justify-between"
+        style={{
+          padding: "14px 24px",
+          borderBottom: "1px solid #EEEBE6",
+        }}
+      >
+        <span style={{ fontSize: 14, fontWeight: 500, color: "#1A1A1A" }}>
+          Lead pipeline
+        </span>
 
-      {/* Table */}
+        {/* Filter pills */}
+        <div className="flex items-center" style={{ gap: 6 }}>
+          {filterPills.map((pill) => (
+            <button
+              key={pill.value}
+              onClick={() => showFilters && setActiveFilter(pill.value)}
+              style={{
+                backgroundColor:
+                  showFilters && activeFilter === pill.value
+                    ? pill.bg
+                    : activeFilter === pill.value
+                    ? pill.bg
+                    : pill.bg,
+                color: pill.color,
+                fontSize: 11,
+                fontWeight: 500,
+                borderRadius: 20,
+                padding: "3px 12px",
+                border: "none",
+                cursor: showFilters ? "pointer" : "default",
+                opacity:
+                  showFilters && activeFilter !== "all" && activeFilter !== pill.value
+                    ? 0.6
+                    : 1,
+              }}
+            >
+              {pill.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Column headers */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: GRID_COLUMNS,
+          padding: "10px 24px",
+          borderBottom: "1px solid #F5F2EE",
+        }}
+      >
+        {["CONTACT", "STATUS", "SOURCE", "DETAILS", "TIME"].map((col) => (
+          <span
+            key={col}
+            style={{
+              fontSize: 10,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "#9B9589",
+              fontWeight: 500,
+            }}
+          >
+            {col}
+          </span>
+        ))}
+      </div>
+
+      {/* Rows */}
       {filteredLeads.length === 0 ? (
         emptyState
       ) : (
-        <div
-          className="bg-white rounded-xl overflow-hidden"
-          style={{
-            boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
-          }}
-        >
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-[#E2E8F0]">
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest">
-                  Contact
-                </th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest">
-                  Status
-                </th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest hidden md:table-cell">
-                  Source
-                </th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest hidden lg:table-cell">
-                  Last Message
-                </th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest">
-                  Time
-                </th>
-                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest hidden sm:table-cell">
-                  Msgs
-                </th>
-                <th className="w-8 hidden sm:table-cell" />
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLeads.map((lead, i) => (
-                <LeadRow
-                  key={lead.id}
-                  lead={lead}
-                  isLast={i === filteredLeads.length - 1}
-                  onClick={() => router.push(`/leads/${lead.id}`)}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        filteredLeads.map((lead, i) => (
+          <LeadRow
+            key={lead.id}
+            lead={lead}
+            isLast={i === filteredLeads.length - 1}
+            onClick={() => router.push(`/leads/${lead.id}`)}
+          />
+        ))
       )}
     </div>
   );
@@ -156,77 +276,62 @@ function LeadRow({
   const [hovered, setHovered] = useState(false);
 
   return (
-    <tr
+    <div
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="cursor-pointer transition-colors duration-150 group"
       style={{
-        borderBottom: isLast ? "none" : "1px solid #F1F5F9",
-        background: hovered ? "#F8F9FA" : "transparent",
+        display: "grid",
+        gridTemplateColumns: GRID_COLUMNS,
+        padding: "14px 0 14px 24px",
+        borderBottom: isLast ? "none" : "1px solid #F5F2EE",
+        borderLeft: `3px solid ${statusBorderColor[lead.status] ?? "#DDD9D3"}`,
+        backgroundColor: hovered ? "#FAFAF9" : "transparent",
+        cursor: "pointer",
+        alignItems: "center",
+        transition: "background-color 0.1s ease",
       }}
     >
-      {/* Contact — with left status accent bar */}
-      <td className="px-5 py-4 relative" style={{ minHeight: "52px" }}>
-        <div
-          className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full"
-          style={{
-            background: statusBorderColor[lead.status] || "transparent",
-          }}
-        />
-        <div className="font-mono text-sm font-medium text-[#2563EB]">
-          {lead.phone_number}
-        </div>
-        <div className="text-xs text-[#64748B] mt-0.5">
-          {lead.name || (
-            <span className="italic text-[#94A3B8]">Unknown</span>
-          )}
-        </div>
-      </td>
+      {/* CONTACT */}
+      <div style={{ paddingRight: 16 }}>
+        <ContactCell lead={lead} />
+      </div>
 
-      {/* Status */}
-      <td className="px-5 py-4">
+      {/* STATUS */}
+      <div>
         <StatusBadge status={lead.status} />
-      </td>
+      </div>
 
-      {/* Source */}
-      <td className="px-5 py-4 hidden md:table-cell">
-        <span className="text-[#64748B] capitalize text-xs">
-          {lead.source.replace("-", " ")}
-        </span>
-      </td>
+      {/* SOURCE */}
+      <div>
+        <SourceCell source={lead.source} />
+      </div>
 
-      {/* Last message */}
-      <td className="px-5 py-4 hidden lg:table-cell max-w-[220px]">
+      {/* DETAILS */}
+      <div style={{ paddingRight: 16, overflow: "hidden" }}>
         {lead.last_message ? (
-          <p className="text-[#94A3B8] truncate text-xs italic max-w-xs">
+          <p
+            style={{
+              fontSize: 12,
+              color: "#6B6560",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
             {lead.last_message}
           </p>
         ) : (
-          <span className="text-[#CBD5E1] text-xs">—</span>
+          <span style={{ fontSize: 12, color: "#C5C0BA" }}>—</span>
         )}
-      </td>
+      </div>
 
-      {/* Time */}
-      <td className="px-5 py-4 text-[#94A3B8] text-xs whitespace-nowrap">
-        {formatDistanceToNow(lead.created_at)}
-      </td>
-
-      {/* Message count */}
-      <td className="px-5 py-4 hidden sm:table-cell">
-        <div className="flex items-center gap-1.5 text-[#94A3B8] text-xs">
-          <MessageSquare className="w-3.5 h-3.5" />
-          <span>{lead.message_count}</span>
-        </div>
-      </td>
-
-      {/* Arrow */}
-      <td className="pr-4 hidden sm:table-cell">
-        <ChevronRight
-          className="w-4 h-4 transition-colors duration-150"
-          style={{ color: hovered ? "#94A3B8" : "#CBD5E1" }}
-        />
-      </td>
-    </tr>
+      {/* TIME */}
+      <div>
+        <span style={{ fontSize: 12, color: "#9B9589" }}>
+          {formatDistanceToNow(lead.updated_at)}
+        </span>
+      </div>
+    </div>
   );
 }

@@ -2,12 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Settings, Anchor } from "lucide-react";
-import clsx from "clsx";
+import {
+  LayoutDashboard,
+  Users,
+  MessageSquare,
+  Star,
+  Settings,
+  Anchor,
+} from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/leads", label: "Leads", icon: Users },
+  { href: "/conversations", label: "Conversations", icon: MessageSquare },
+  { href: "/reviews", label: "Reviews", icon: Star },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -15,24 +23,60 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex flex-col w-60 min-h-screen shrink-0 bg-white border-r border-[#E2E8F0]">
-      {/* Logo */}
-      <div className="px-5 pt-6 pb-5 border-b border-[#E2E8F0]">
-        <div className="flex items-center gap-2.5">
-          <Anchor className="w-5 h-5 text-[#2563EB] shrink-0" />
-          <span className="text-[18px] font-bold text-[#0F172A] tracking-tight">
+    <aside
+      className="flex flex-col shrink-0"
+      style={{
+        width: 220,
+        backgroundColor: "#FFFFFF",
+        borderRight: "1px solid #EEEBE6",
+        height: "100vh",
+      }}
+    >
+      {/* Logo / Brand */}
+      <div
+        style={{
+          padding: "20px 16px",
+          borderBottom: "1px solid #EEEBE6",
+        }}
+      >
+        <div className="flex items-center" style={{ gap: 8 }}>
+          <div
+            className="flex items-center justify-center shrink-0"
+            style={{
+              width: 28,
+              height: 28,
+              backgroundColor: "#4F46E5",
+              borderRadius: 6,
+            }}
+          >
+            <Anchor style={{ width: 14, height: 14, color: "#FFFFFF" }} />
+          </div>
+          <span style={{ fontSize: 15, fontWeight: 500, color: "#1A1A1A" }}>
             Dockline
           </span>
         </div>
-        <p className="text-[12px] text-[#94A3B8] mt-2 font-medium">
+        <p style={{ fontSize: 11, color: "#9B9589", marginTop: 8 }}>
           San Pedro Sport Fishing
         </p>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 px-3 space-y-0.5">
-        <p className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-[0.08em] px-3 mb-2 mt-1">
-          Navigation
+      <nav
+        className="flex flex-col"
+        style={{ padding: "16px 12px 8px", flex: 1 }}
+      >
+        <p
+          style={{
+            fontSize: 10,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "#9B9589",
+            fontWeight: 500,
+            padding: "0 6px",
+            marginBottom: 6,
+          }}
+        >
+          Platform
         </p>
         {navItems.map(({ href, label, icon: Icon }) => {
           const active =
@@ -44,21 +88,27 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={clsx(
-                "relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
-                active
-                  ? "bg-[#EFF6FF] text-[#2563EB]"
-                  : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
-              )}
+              className="flex items-center"
+              style={{
+                gap: 8,
+                padding: "9px 12px",
+                borderRadius: 8,
+                textDecoration: "none",
+                marginBottom: 2,
+                backgroundColor: active ? "#4F46E5" : "transparent",
+                color: active ? "#FFFFFF" : "#6B6560",
+                fontSize: 13,
+                fontWeight: active ? 500 : 400,
+                transition: "background-color 0.15s ease",
+              }}
             >
-              {active && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-[#2563EB] rounded-r-full" />
-              )}
               <Icon
-                className={clsx(
-                  "w-4 h-4 shrink-0",
-                  active ? "text-[#2563EB]" : "text-[#64748B]"
-                )}
+                style={{
+                  width: 15,
+                  height: 15,
+                  flexShrink: 0,
+                  color: active ? "#FFFFFF" : "#6B6560",
+                }}
               />
               {label}
             </Link>
@@ -66,13 +116,41 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="px-5 py-4 border-t border-[#E2E8F0]">
-        <div className="flex items-center gap-1.5">
-          <Anchor className="w-3 h-3 text-[#94A3B8]" />
-          <p className="text-[11px] text-[#94A3B8]">
-            Powered by Dockline
+      {/* User */}
+      <div
+        className="flex items-center"
+        style={{
+          padding: 16,
+          borderTop: "1px solid #EEEBE6",
+          gap: 10,
+        }}
+      >
+        <div
+          className="flex items-center justify-center shrink-0"
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            backgroundColor: "#EEF2FF",
+            color: "#4F46E5",
+            fontSize: 11,
+            fontWeight: 500,
+          }}
+        >
+          RN
+        </div>
+        <div>
+          <p
+            style={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: "#1A1A1A",
+              lineHeight: 1.3,
+            }}
+          >
+            Ryan Norried
           </p>
+          <p style={{ fontSize: 10, color: "#9B9589" }}>Owner</p>
         </div>
       </div>
     </aside>
