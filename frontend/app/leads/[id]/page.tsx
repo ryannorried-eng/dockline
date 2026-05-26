@@ -19,18 +19,19 @@ import {
   Calendar,
   Tag,
   Star,
-  ChevronDown,
   CheckCircle,
   MessageSquare,
-  Radio,
+  PhoneMissed,
+  ChevronDown,
 } from "lucide-react";
 
 const STATUS_OPTIONS: LeadStatus[] = ["new", "active", "qualified"];
 
-const sourceLabel: Record<string, string> = {
-  "inbound-sms": "Inbound SMS",
-  "missed-call": "Missed Call",
-};
+const sourceLabel: Record<string, { label: string; icon: React.ElementType }> =
+  {
+    "inbound-sms": { label: "Inbound SMS", icon: MessageSquare },
+    "missed-call": { label: "Missed Call", icon: PhoneMissed },
+  };
 
 export default function LeadDetailPage() {
   const params = useParams();
@@ -99,10 +100,22 @@ export default function LeadDetailPage() {
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="p-8 flex items-center justify-center h-full">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-[#2563EB] border-t-transparent animate-spin" />
-          <p className="text-xs text-[#94A3B8]">Loading lead…</p>
+      <div
+        className="flex items-center justify-center"
+        style={{ padding: 24, height: "100%" }}
+      >
+        <div className="flex flex-col items-center" style={{ gap: 12 }}>
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              border: "2px solid #4F46E5",
+              borderTopColor: "transparent",
+              animation: "spin 0.8s linear infinite",
+            }}
+          />
+          <p style={{ fontSize: 12, color: "#9B9589" }}>Loading lead…</p>
         </div>
       </div>
     );
@@ -111,12 +124,29 @@ export default function LeadDetailPage() {
   /* ── Error ── */
   if (error || !lead) {
     return (
-      <div className="p-8">
-        <div className="rounded-xl p-6 text-center bg-red-50 border border-red-200">
-          <p className="text-red-600 font-semibold">{error || "Lead not found"}</p>
+      <div style={{ padding: 24 }}>
+        <div
+          style={{
+            backgroundColor: "#FEF2F2",
+            border: "1px solid #FECACA",
+            borderRadius: 10,
+            padding: 24,
+            textAlign: "center",
+          }}
+        >
+          <p style={{ color: "#DC2626", fontWeight: 500, fontSize: 13 }}>
+            {error || "Lead not found"}
+          </p>
           <button
             onClick={() => router.back()}
-            className="mt-3 text-sm text-[#64748B] hover:text-[#0F172A] transition-colors"
+            style={{
+              marginTop: 12,
+              fontSize: 13,
+              color: "#4F46E5",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
           >
             ← Go back
           </button>
@@ -125,184 +155,293 @@ export default function LeadDetailPage() {
     );
   }
 
+  const sourceConfig =
+    sourceLabel[lead.source] ?? {
+      label: lead.source.replace("-", " "),
+      icon: MessageSquare,
+    };
+  const SourceIcon = sourceConfig.icon;
+
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-6 page-enter">
+    <div
+      className="page-enter"
+      style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}
+    >
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-4 right-4 z-50 px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2.5 border ${
-            toast.type === "success"
-              ? "bg-white border-[#16A34A]/30 text-[#0F172A]"
-              : "bg-white border-red-200 text-[#0F172A]"
-          }`}
+          className="flex items-center"
+          style={{
+            position: "fixed",
+            top: 16,
+            right: 16,
+            zIndex: 50,
+            backgroundColor: "#FFFFFF",
+            border: `1px solid ${toast.type === "success" ? "#BBF7D0" : "#FECACA"}`,
+            borderRadius: 10,
+            padding: "10px 16px",
+            gap: 10,
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+          }}
         >
           <CheckCircle
-            className="w-4 h-4 shrink-0"
-            style={{ color: toast.type === "success" ? "#16A34A" : "#DC2626" }}
+            style={{
+              width: 16,
+              height: 16,
+              color: toast.type === "success" ? "#16A34A" : "#DC2626",
+              flexShrink: 0,
+            }}
           />
-          {toast.msg}
+          <span style={{ fontSize: 13, color: "#1A1A1A" }}>{toast.msg}</span>
         </div>
       )}
 
       {/* Back link */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-1.5 text-sm text-[#2563EB] hover:text-blue-700 font-medium transition-colors"
+        className="flex items-center"
+        style={{
+          gap: 6,
+          fontSize: 13,
+          color: "#4F46E5",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          padding: 0,
+          alignSelf: "flex-start",
+        }}
       >
-        <ArrowLeft className="w-4 h-4" />
+        <ArrowLeft style={{ width: 14, height: 14 }} />
         Back to leads
       </button>
 
       {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
-
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 300px",
+          gap: 16,
+          alignItems: "start",
+        }}
+      >
         {/* LEFT: Conversation thread */}
         <div
-          className="bg-white rounded-xl overflow-hidden"
           style={{
-            boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #EEEBE6",
+            borderRadius: 10,
+            overflow: "hidden",
           }}
         >
           {/* Conversation header */}
-          <div className="px-5 py-4 flex items-center justify-between border-b border-[#E2E8F0]">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[#64748B]" />
-              <h2 className="font-bold text-[#0F172A] text-sm">Conversation</h2>
+          <div
+            className="flex items-center justify-between"
+            style={{
+              padding: "14px 24px",
+              borderBottom: "1px solid #EEEBE6",
+            }}
+          >
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <MessageSquare
+                style={{ width: 15, height: 15, color: "#6B6560" }}
+              />
+              <span style={{ fontSize: 14, fontWeight: 500, color: "#1A1A1A" }}>
+                Conversation
+              </span>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#F1F5F9] text-[#64748B]">
+            <span
+              style={{
+                backgroundColor: "#F0EDE8",
+                color: "#6B6560",
+                fontSize: 11,
+                fontWeight: 500,
+                borderRadius: 20,
+                padding: "3px 10px",
+              }}
+            >
               {lead.messages.length} msg{lead.messages.length !== 1 ? "s" : ""}
             </span>
           </div>
-          <div className="px-4 pb-4 max-h-[65vh] overflow-y-auto">
+
+          <div
+            style={{
+              padding: "0 16px 16px",
+              maxHeight: "65vh",
+              overflowY: "auto",
+            }}
+          >
             <ConversationThread messages={lead.messages} />
           </div>
         </div>
 
-        {/* RIGHT: Lead info + actions */}
+        {/* RIGHT: Lead info card */}
         <div
-          className="bg-white rounded-xl p-5 space-y-4"
           style={{
-            boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #EEEBE6",
+            borderRadius: 10,
+            padding: 20,
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
           }}
         >
           {/* Status badge */}
           <StatusBadge status={lead.status} />
 
-          {/* Phone number */}
-          <div className="flex items-center gap-2 pt-1">
-            <Phone className="w-4 h-4 text-[#94A3B8] shrink-0" />
-            <span className="font-mono text-lg font-bold text-[#2563EB] tracking-wide">
+          {/* Phone */}
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <Phone style={{ width: 14, height: 14, color: "#9B9589", flexShrink: 0 }} />
+            <span
+              className="font-mono"
+              style={{
+                fontSize: 15,
+                fontWeight: 500,
+                color: "#4F46E5",
+              }}
+            >
               {lead.phone_number}
             </span>
           </div>
 
           {/* Name */}
-          <div className="flex items-center gap-2 text-sm">
-            <User className="w-4 h-4 text-[#94A3B8] shrink-0" />
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <User style={{ width: 14, height: 14, color: "#9B9589", flexShrink: 0 }} />
             {lead.name ? (
-              <span className="text-[#0F172A] font-semibold">{lead.name}</span>
+              <span style={{ fontSize: 14, fontWeight: 500, color: "#1A1A1A" }}>
+                {lead.name}
+              </span>
             ) : (
-              <span className="text-[#94A3B8] italic">Name unknown</span>
+              <span
+                style={{
+                  fontSize: 13,
+                  color: "#9B9589",
+                  fontStyle: "italic",
+                }}
+              >
+                Name unknown
+              </span>
             )}
           </div>
 
           {/* Source */}
-          <div className="flex items-center gap-2 text-xs text-[#64748B]">
-            {lead.source === "missed-call" ? (
-              <Radio className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
-            ) : (
-              <MessageSquare className="w-3.5 h-3.5 text-[#94A3B8] shrink-0" />
-            )}
-            <span>{sourceLabel[lead.source] ?? lead.source.replace("-", " ")}</span>
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <SourceIcon
+              style={{ width: 13, height: 13, color: "#9B9589", flexShrink: 0 }}
+            />
+            <span style={{ fontSize: 12, color: "#6B6560" }}>
+              {sourceConfig.label}
+            </span>
           </div>
 
           {/* Timestamps */}
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
-              <Calendar className="w-3.5 h-3.5 shrink-0" />
-              <span>Created {formatDateTime(lead.created_at)}</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <Calendar
+                style={{ width: 13, height: 13, color: "#9B9589", flexShrink: 0 }}
+              />
+              <span style={{ fontSize: 12, color: "#6B6560" }}>
+                Created {formatDateTime(lead.created_at)}
+              </span>
             </div>
-            <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
-              <Tag className="w-3.5 h-3.5 shrink-0" />
-              <span>Updated {formatDateTime(lead.updated_at)}</span>
+            <div className="flex items-center" style={{ gap: 8 }}>
+              <Tag
+                style={{ width: 13, height: 13, color: "#9B9589", flexShrink: 0 }}
+              />
+              <span style={{ fontSize: 12, color: "#6B6560" }}>
+                Updated {formatDateTime(lead.updated_at)}
+              </span>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="border-t border-[#E2E8F0]" />
+          <div style={{ borderTop: "1px solid #EEEBE6" }} />
 
-          {/* Actions */}
-          <div className="space-y-3">
-            <p className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-[0.08em]">
-              Actions
-            </p>
-
-            {/* Status dropdown */}
-            <div>
-              <label className="text-xs font-medium text-[#0F172A] block mb-1.5">
-                Update Status
-              </label>
-              <div className="relative">
-                <select
-                  value={lead.status}
-                  onChange={(e) =>
-                    handleStatusChange(e.target.value as LeadStatus)
-                  }
-                  disabled={saving}
-                  className="w-full appearance-none text-sm font-medium pl-3 pr-8 py-2.5 rounded-lg border border-[#E2E8F0] bg-white text-[#0F172A] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB] disabled:opacity-50 transition-all"
-                >
-                  {STATUS_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s.charAt(0).toUpperCase() + s.slice(1)}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
-              </div>
-            </div>
-
-            {/* Mark as Qualified quick action */}
-            {lead.status !== "qualified" && (
-              <button
-                onClick={() => handleStatusChange("qualified")}
-                disabled={saving}
-                className="w-full flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all bg-[#F0FDF4] text-[#166534] border border-[#16A34A]/20 hover:bg-[#dcfce7] disabled:opacity-50"
-              >
-                <CheckCircle className="w-4 h-4" />
-                Mark as Qualified
-              </button>
-            )}
-
-            {/* Review request button — only for qualified */}
-            {lead.status === "qualified" && (
-              <button
-                onClick={handleReviewRequest}
-                disabled={reviewLoading || reviewSent}
-                className="w-full flex items-center justify-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all disabled:opacity-60"
-                style={
-                  reviewSent
-                    ? {
-                        background: "#F0FDF4",
-                        border: "1px solid rgba(22,163,74,0.2)",
-                        color: "#166534",
-                      }
-                    : {
-                        background: "#2563EB",
-                        border: "none",
-                        color: "#FFFFFF",
-                        boxShadow: "0 1px 2px rgba(37,99,235,0.2)",
-                      }
+          {/* Status dropdown */}
+          <div>
+            <label
+              style={{
+                fontSize: 13,
+                fontWeight: 500,
+                color: "#1A1A1A",
+                display: "block",
+                marginBottom: 6,
+              }}
+            >
+              Update Status
+            </label>
+            <div style={{ position: "relative" }}>
+              <select
+                value={lead.status}
+                onChange={(e) =>
+                  handleStatusChange(e.target.value as LeadStatus)
                 }
+                disabled={saving}
+                style={{
+                  width: "100%",
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  fontSize: 13,
+                  padding: "10px 32px 10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #EEEBE6",
+                  backgroundColor: "#FFFFFF",
+                  color: "#1A1A1A",
+                  cursor: "pointer",
+                  outline: "none",
+                  opacity: saving ? 0.5 : 1,
+                }}
               >
-                <Star className="w-4 h-4" />
-                {reviewSent
-                  ? "Review Sent ✓"
-                  : reviewLoading
-                  ? "Sending…"
-                  : "Send Review Request"}
-              </button>
-            )}
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                style={{
+                  position: "absolute",
+                  right: 10,
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: 14,
+                  height: 14,
+                  color: "#9B9589",
+                  pointerEvents: "none",
+                }}
+              />
+            </div>
           </div>
+
+          {/* Send Review Request button (qualified only) */}
+          {lead.status === "qualified" && (
+            <button
+              onClick={handleReviewRequest}
+              disabled={reviewLoading || reviewSent}
+              className="flex items-center justify-center"
+              style={{
+                width: "100%",
+                gap: 8,
+                fontSize: 12,
+                fontWeight: 500,
+                padding: "10px",
+                borderRadius: 8,
+                border: "none",
+                cursor: reviewLoading || reviewSent ? "not-allowed" : "pointer",
+                backgroundColor: reviewSent ? "#DCFCE7" : "#4F46E5",
+                color: reviewSent ? "#166534" : "#FFFFFF",
+                opacity: reviewLoading ? 0.7 : 1,
+                transition: "background-color 0.2s ease",
+              }}
+            >
+              <Star style={{ width: 14, height: 14 }} />
+              {reviewSent
+                ? "Review Sent ✓"
+                : reviewLoading
+                ? "Sending…"
+                : "Send Review Request"}
+            </button>
+          )}
         </div>
       </div>
     </div>

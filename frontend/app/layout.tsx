@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import TopBar from "@/components/TopBar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,12 +23,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable} style={{ backgroundColor: "#F8F9FA" }}>
-      <body className="flex h-screen overflow-hidden bg-[#F8F9FA]">
+    <html
+      lang="en"
+      className={inter.variable}
+      style={{ backgroundColor: "#F0EDE8" }}
+    >
+      <body
+        className="flex h-screen overflow-hidden"
+        style={{ backgroundColor: "#F0EDE8" }}
+      >
         <Sidebar />
-        <main className="flex-1 overflow-y-auto bg-[#F8F9FA]">
-          {children}
-        </main>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <TopBar />
+          <main
+            className="flex-1 overflow-y-auto"
+            style={{ backgroundColor: "#F0EDE8" }}
+          >
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );
