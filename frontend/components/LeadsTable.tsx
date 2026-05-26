@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "@/lib/utils";
 import StatusBadge from "./StatusBadge";
-import type { LeadSummary, LeadStatus } from "@/lib/api";
+import type { LeadSummary } from "@/lib/api";
 import { MessageSquare, Anchor, ChevronRight } from "lucide-react";
 
 interface LeadsTableProps {
@@ -13,9 +13,9 @@ interface LeadsTableProps {
 }
 
 const statusBorderColor: Record<string, string> = {
-  new: "rgba(148, 163, 184, 0.5)",
-  active: "rgba(245, 158, 11, 0.8)",
-  qualified: "rgba(16, 185, 129, 0.8)",
+  new: "#94A3B8",
+  active: "#D97706",
+  qualified: "#16A34A",
 };
 
 const filterOptions: { label: string; value: string }[] = [
@@ -36,26 +36,18 @@ export default function LeadsTable({ leads, showFilters }: LeadsTableProps) {
 
   const emptyState = (
     <div
-      className="rounded-xl p-12 text-center"
+      className="bg-white rounded-xl p-12 text-center"
       style={{
-        background: "rgba(15, 32, 64, 0.8)",
-        backdropFilter: "blur(12px)",
-        border: "1px solid rgba(14, 116, 144, 0.2)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
       }}
     >
       <div className="flex justify-center mb-5">
-        <div
-          className="w-14 h-14 rounded-full flex items-center justify-center"
-          style={{
-            background: "rgba(14, 116, 144, 0.1)",
-            border: "1px solid rgba(14, 116, 144, 0.2)",
-          }}
-        >
-          <Anchor className="w-6 h-6 text-[#0E7490]" />
+        <div className="w-14 h-14 rounded-full bg-[#F1F5F9] flex items-center justify-center">
+          <Anchor className="w-6 h-6 text-[#94A3B8]" />
         </div>
       </div>
-      <h3 className="text-sm font-semibold text-[#F8FAFC] mb-2">No leads yet</h3>
-      <p className="text-sm text-[#94A3B8] max-w-xs mx-auto leading-relaxed">
+      <h3 className="text-sm font-semibold text-[#0F172A] mb-2">No leads yet</h3>
+      <p className="text-sm text-[#64748B] max-w-xs mx-auto leading-relaxed">
         Leads will appear here when missed calls come in or customers text the
         business line.
       </p>
@@ -79,30 +71,19 @@ export default function LeadsTable({ leads, showFilters }: LeadsTableProps) {
               <button
                 key={opt.value}
                 onClick={() => setActiveFilter(opt.value)}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150"
-                style={
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 ${
                   isActive
-                    ? {
-                        background: "rgba(14, 116, 144, 0.25)",
-                        border: "1px solid rgba(6, 182, 212, 0.5)",
-                        color: "#06B6D4",
-                        boxShadow: "0 0 10px rgba(6, 182, 212, 0.1)",
-                      }
-                    : {
-                        background: "rgba(15, 32, 64, 0.6)",
-                        border: "1px solid rgba(14, 116, 144, 0.15)",
-                        color: "#94A3B8",
-                      }
-                }
+                    ? "bg-[#2563EB] text-white border border-[#2563EB]"
+                    : "bg-white text-[#64748B] border border-[#E2E8F0] hover:border-[#CBD5E1] hover:text-[#0F172A]"
+                }`}
               >
                 {opt.label}
                 <span
-                  className="px-1.5 py-0.5 rounded-full text-[10px] font-bold"
-                  style={
+                  className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
                     isActive
-                      ? { background: "rgba(6, 182, 212, 0.2)", color: "#06B6D4" }
-                      : { background: "rgba(148, 163, 184, 0.1)", color: "#94A3B8" }
-                  }
+                      ? "bg-white/20 text-white"
+                      : "bg-[#F1F5F9] text-[#64748B]"
+                  }`}
                 >
                   {count}
                 </span>
@@ -117,37 +98,30 @@ export default function LeadsTable({ leads, showFilters }: LeadsTableProps) {
         emptyState
       ) : (
         <div
-          className="rounded-xl overflow-hidden"
+          className="bg-white rounded-xl overflow-hidden"
           style={{
-            background: "rgba(15, 32, 64, 0.8)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(14, 116, 144, 0.2)",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
           }}
         >
           <table className="w-full text-sm">
             <thead>
-              <tr
-                style={{
-                  background: "rgba(10, 22, 40, 0.6)",
-                  borderBottom: "1px solid rgba(14, 116, 144, 0.15)",
-                }}
-              >
-                <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#94A3B8] uppercase tracking-widest">
+              <tr className="border-b border-[#E2E8F0]">
+                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest">
                   Contact
                 </th>
-                <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#94A3B8] uppercase tracking-widest">
+                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest">
                   Status
                 </th>
-                <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#94A3B8] uppercase tracking-widest hidden md:table-cell">
+                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest hidden md:table-cell">
                   Source
                 </th>
-                <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#94A3B8] uppercase tracking-widest hidden lg:table-cell">
+                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest hidden lg:table-cell">
                   Last Message
                 </th>
-                <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#94A3B8] uppercase tracking-widest">
+                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest">
                   Time
                 </th>
-                <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-[#94A3B8] uppercase tracking-widest hidden sm:table-cell">
+                <th className="text-left px-5 py-3 text-[11px] font-semibold text-[#94A3B8] uppercase tracking-widest hidden sm:table-cell">
                   Msgs
                 </th>
                 <th className="w-8 hidden sm:table-cell" />
@@ -186,28 +160,27 @@ function LeadRow({
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="cursor-pointer transition-all duration-150"
+      className="cursor-pointer transition-colors duration-150 group"
       style={{
-        borderBottom: isLast ? "none" : "1px solid rgba(14, 116, 144, 0.1)",
-        background: hovered ? "rgba(14, 116, 144, 0.07)" : "transparent",
+        borderBottom: isLast ? "none" : "1px solid #F1F5F9",
+        background: hovered ? "#F8F9FA" : "transparent",
       }}
     >
       {/* Contact — with left status accent bar */}
-      <td className="px-5 py-4 relative">
+      <td className="px-5 py-4 relative" style={{ minHeight: "52px" }}>
         <div
-          className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full transition-opacity duration-150"
+          className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r-full"
           style={{
             background: statusBorderColor[lead.status] || "transparent",
-            opacity: hovered ? 1 : 0.6,
           }}
         />
-        <div className="font-semibold text-[#F8FAFC] text-sm">
-          {lead.name || (
-            <span className="text-[#94A3B8] italic font-normal">Unknown</span>
-          )}
-        </div>
-        <div className="font-mono text-xs mt-0.5 text-[#06B6D4]">
+        <div className="font-mono text-sm font-medium text-[#2563EB]">
           {lead.phone_number}
+        </div>
+        <div className="text-xs text-[#64748B] mt-0.5">
+          {lead.name || (
+            <span className="italic text-[#94A3B8]">Unknown</span>
+          )}
         </div>
       </td>
 
@@ -218,11 +191,7 @@ function LeadRow({
 
       {/* Source */}
       <td className="px-5 py-4 hidden md:table-cell">
-        <span className="inline-flex items-center gap-1.5 text-[#94A3B8] capitalize text-xs">
-          <span
-            className="w-1.5 h-1.5 rounded-full"
-            style={{ background: "rgba(14, 116, 144, 0.5)" }}
-          />
+        <span className="text-[#64748B] capitalize text-xs">
           {lead.source.replace("-", " ")}
         </span>
       </td>
@@ -230,11 +199,11 @@ function LeadRow({
       {/* Last message */}
       <td className="px-5 py-4 hidden lg:table-cell max-w-[220px]">
         {lead.last_message ? (
-          <p className="text-[#94A3B8] truncate text-xs italic">
+          <p className="text-[#94A3B8] truncate text-xs italic max-w-xs">
             {lead.last_message}
           </p>
         ) : (
-          <span className="text-[#94A3B8]/30 text-xs">—</span>
+          <span className="text-[#CBD5E1] text-xs">—</span>
         )}
       </td>
 
@@ -246,7 +215,7 @@ function LeadRow({
       {/* Message count */}
       <td className="px-5 py-4 hidden sm:table-cell">
         <div className="flex items-center gap-1.5 text-[#94A3B8] text-xs">
-          <MessageSquare className="w-3.5 h-3.5 text-[#0E7490]" />
+          <MessageSquare className="w-3.5 h-3.5" />
           <span>{lead.message_count}</span>
         </div>
       </td>
@@ -255,7 +224,7 @@ function LeadRow({
       <td className="pr-4 hidden sm:table-cell">
         <ChevronRight
           className="w-4 h-4 transition-colors duration-150"
-          style={{ color: hovered ? "#06B6D4" : "rgba(148, 163, 184, 0.3)" }}
+          style={{ color: hovered ? "#94A3B8" : "#CBD5E1" }}
         />
       </td>
     </tr>

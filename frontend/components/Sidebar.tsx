@@ -15,39 +15,25 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside
-      className="flex flex-col w-60 min-h-screen shrink-0 relative"
-      style={{
-        background: "linear-gradient(180deg, #0A1628 0%, #060e1c 100%)",
-        borderRight: "1px solid rgba(14, 116, 144, 0.25)",
-      }}
-    >
+    <aside className="flex flex-col w-60 min-h-screen shrink-0 bg-white border-r border-[#E2E8F0]">
       {/* Logo */}
-      <div
-        className="px-5 pt-7 pb-5"
-        style={{ borderBottom: "1px solid rgba(14, 116, 144, 0.15)" }}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className="flex items-center justify-center w-10 h-10 rounded-xl"
-            style={{
-              background: "rgba(6, 182, 212, 0.12)",
-              border: "1px solid rgba(6, 182, 212, 0.25)",
-            }}
-          >
-            <Anchor className="w-5 h-5 text-[#06B6D4]" />
-          </div>
-          <span className="text-xl font-bold tracking-tight text-[#06B6D4]">
+      <div className="px-5 pt-6 pb-5 border-b border-[#E2E8F0]">
+        <div className="flex items-center gap-2.5">
+          <Anchor className="w-5 h-5 text-[#2563EB] shrink-0" />
+          <span className="text-[18px] font-bold text-[#0F172A] tracking-tight">
             Dockline
           </span>
         </div>
-        <p className="text-xs text-[#94A3B8] mt-2.5 ml-0.5 font-medium">
+        <p className="text-[12px] text-[#94A3B8] mt-2 font-medium">
           San Pedro Sport Fishing
         </p>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-5 px-3 space-y-1">
+      <nav className="flex-1 py-4 px-3 space-y-0.5">
+        <p className="text-[11px] font-semibold text-[#94A3B8] uppercase tracking-[0.08em] px-3 mb-2 mt-1">
+          Navigation
+        </p>
         {navItems.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/"
@@ -59,25 +45,19 @@ export default function Sidebar() {
               key={href}
               href={href}
               className={clsx(
-                "flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                "relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150",
                 active
-                  ? "text-[#06B6D4]"
-                  : "text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5"
+                  ? "bg-[#EFF6FF] text-[#2563EB]"
+                  : "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
               )}
-              style={
-                active
-                  ? {
-                      background: "rgba(14, 116, 144, 0.2)",
-                      border: "1px solid rgba(14, 116, 144, 0.35)",
-                      boxShadow: "0 0 12px rgba(6, 182, 212, 0.05)",
-                    }
-                  : {}
-              }
             >
+              {active && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-[#2563EB] rounded-r-full" />
+              )}
               <Icon
                 className={clsx(
                   "w-4 h-4 shrink-0",
-                  active ? "text-[#06B6D4]" : "text-[#94A3B8]"
+                  active ? "text-[#2563EB]" : "text-[#64748B]"
                 )}
               />
               {label}
@@ -87,13 +67,10 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div
-        className="px-5 py-4"
-        style={{ borderTop: "1px solid rgba(14, 116, 144, 0.15)" }}
-      >
-        <div className="flex items-center gap-2">
-          <Anchor className="w-3 h-3 text-[#94A3B8]/60" />
-          <p className="text-xs text-[#94A3B8]/60 font-medium">
+      <div className="px-5 py-4 border-t border-[#E2E8F0]">
+        <div className="flex items-center gap-1.5">
+          <Anchor className="w-3 h-3 text-[#94A3B8]" />
+          <p className="text-[11px] text-[#94A3B8]">
             Powered by Dockline
           </p>
         </div>

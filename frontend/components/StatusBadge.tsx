@@ -7,24 +7,27 @@ interface StatusBadgeProps {
 
 const statusConfig: Record<
   LeadStatus,
-  { label: string; className: string; dotClass: string; pulse: boolean }
+  { label: string; bg: string; text: string; dot: string; pulse: boolean }
 > = {
   new: {
     label: "New",
-    className: "bg-[#94A3B8]/10 text-[#94A3B8] border border-[#94A3B8]/20",
-    dotClass: "bg-[#94A3B8]",
+    bg: "bg-[#F1F5F9]",
+    text: "text-[#475569]",
+    dot: "bg-[#94A3B8]",
     pulse: false,
   },
   active: {
     label: "Active",
-    className: "bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20",
-    dotClass: "bg-[#F59E0B]",
+    bg: "bg-[#FFFBEB]",
+    text: "text-[#92400E]",
+    dot: "bg-[#D97706]",
     pulse: true,
   },
   qualified: {
     label: "Qualified",
-    className: "bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20",
-    dotClass: "bg-[#10B981]",
+    bg: "bg-[#F0FDF4]",
+    text: "text-[#166534]",
+    dot: "bg-[#16A34A]",
     pulse: false,
   },
 };
@@ -34,14 +37,15 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
   return (
     <span
       className={clsx(
-        "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold tracking-wide",
-        config.className
+        "inline-flex items-center px-3 py-1.5 rounded-md text-xs font-medium",
+        config.bg,
+        config.text
       )}
     >
       <span
         className={clsx(
           "w-1.5 h-1.5 rounded-full mr-1.5 shrink-0",
-          config.dotClass,
+          config.dot,
           config.pulse && "dot-pulse"
         )}
       />
