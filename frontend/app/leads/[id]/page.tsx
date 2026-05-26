@@ -21,9 +21,16 @@ import {
   Star,
   ChevronDown,
   CheckCircle,
+  MessageSquare,
+  Radio,
 } from "lucide-react";
 
 const STATUS_OPTIONS: LeadStatus[] = ["new", "active", "qualified"];
+
+const sourceLabel: Record<string, string> = {
+  "inbound-sms": "Inbound SMS",
+  "missed-call": "Missed Call",
+};
 
 export default function LeadDetailPage() {
   const params = useParams();
@@ -36,13 +43,16 @@ export default function LeadDetailPage() {
   const [saving, setSaving] = useState(false);
   const [reviewSent, setReviewSent] = useState(false);
   const [reviewLoading, setReviewLoading] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{
+    msg: string;
+    type: "success" | "error";
+  } | null>(null);
 
   const fetchLead = useCallback(async () => {
     try {
       const data = await getLead(leadId);
       setLead(data);
-    } catch (e) {
+    } catch {
       setError("Failed to load lead.");
     } finally {
       setLoading(false);
@@ -53,8 +63,8 @@ export default function LeadDetailPage() {
     fetchLead();
   }, [fetchLead]);
 
-  const showToast = (msg: string) => {
-    setToast(msg);
+  const showToast = (msg: string, type: "success" | "error" = "success") => {
+    setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
   };
 
@@ -66,7 +76,7 @@ export default function LeadDetailPage() {
       setLead(updated);
       showToast("Status updated");
     } catch {
-      showToast("Failed to update status");
+      showToast("Failed to update status", "error");
     } finally {
       setSaving(false);
     }
@@ -76,35 +86,46 @@ export default function LeadDetailPage() {
     if (!lead) return;
     setReviewLoading(true);
     try {
-      await sendReviewRequest(
-        lead.phone_number,
-        lead.name || "there"
-      );
+      await sendReviewRequest(lead.phone_number, lead.name || "there");
       setReviewSent(true);
       showToast("Review request sent! 🎣");
     } catch {
-      showToast("Failed to send review request");
+      showToast("Failed to send review request", "error");
     } finally {
       setReviewLoading(false);
     }
   };
 
+  /* ── Loading ── */
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center h-full">
-        <div className="animate-spin w-6 h-6 border-2 border-[#0E7490] border-t-transparent rounded-full" />
+        <div className="flex flex-col items-center gap-3">
+          <div
+            className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+            style={{ borderColor: "#0E7490", borderTopColor: "transparent" }}
+          />
+          <p className="text-xs text-[#94A3B8]">Loading lead…</p>
+        </div>
       </div>
     );
   }
 
+  /* ── Error ── */
   if (error || !lead) {
     return (
       <div className="p-8">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-          <p className="text-red-600 font-medium">{error || "Lead not found"}</p>
+        <div
+          className="rounded-xl p-6 text-center"
+          style={{
+            background: "rgba(239, 68, 68, 0.08)",
+            border: "1px solid rgba(239, 68, 68, 0.2)",
+          }}
+        >
+          <p className="text-red-400 font-semibold">{error || "Lead not found"}</p>
           <button
             onClick={() => router.back()}
-            className="mt-3 text-sm text-slate-500 hover:underline"
+            className="mt-3 text-sm text-[#94A3B8] hover:text-[#F8FAFC] transition-colors"
           >
             ← Go back
           </button>
@@ -114,90 +135,206 @@ export default function LeadDetailPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
+    <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6 page-enter">
       {/* Toast */}
       {toast && (
-        <div className="fixed top-4 right-4 z-50 bg-slate-800 text-white px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 text-emerald-400" />
-          {toast}
+        <div
+          className="fixed top-4 right-4 z-50 px-4 py-2.5 rounded-xl shadow-xl text-sm font-medium flex items-center gap-2.5 transition-all"
+          style={
+            toast.type === "success"
+              ? {
+                  background: "rgba(15, 32, 64, 0.95)",
+                  border: "1px solid rgba(16, 185, 129, 0.3)",
+                  backdropFilter: "blur(12px)",
+                  color: "#F8FAFC",
+                }
+              : {
+                  background: "rgba(15, 32, 64, 0.95)",
+                  border: "1px solid rgba(239, 68, 68, 0.3)",
+                  backdropFilter: "blur(12px)",
+                  color: "#F8FAFC",
+                }
+          }
+        >
+          <CheckCircle
+            className="w-4 h-4 shrink-0"
+            style={{ color: toast.type === "success" ? "#10B981" : "#EF4444" }}
+          />
+          {toast.msg}
         </div>
       )}
 
       {/* Back button */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors"
+        className="flex items-center gap-1.5 text-sm text-[#94A3B8] hover:text-[#F8FAFC] transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to leads
       </button>
 
       {/* Lead info card */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div
+        className="rounded-xl p-6"
+        style={{
+          background: "rgba(15, 32, 64, 0.85)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(14, 116, 144, 0.25)",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.25)",
+        }}
+      >
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6">
           {/* Left: Lead details */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
+          <div className="space-y-4">
+            {/* Status + source row */}
+            <div className="flex items-center gap-2.5 flex-wrap">
               <StatusBadge status={lead.status} />
-              <span className="text-xs text-slate-400 capitalize">
-                via {lead.source.replace("-", " ")}
+              <span
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                style={{
+                  background: "rgba(14, 116, 144, 0.1)",
+                  border: "1px solid rgba(14, 116, 144, 0.2)",
+                  color: "#0E7490",
+                }}
+              >
+                {lead.source === "missed-call" ? (
+                  <Radio className="w-3 h-3" />
+                ) : (
+                  <MessageSquare className="w-3 h-3" />
+                )}
+                {sourceLabel[lead.source] ?? lead.source.replace("-", " ")}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="font-mono">{lead.phone_number}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <User className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>{lead.name || <span className="text-slate-400 italic">Name unknown</span>}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-                <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
+            {/* Phone number — large and prominent */}
+            <div className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-[#0E7490] shrink-0" />
+              <span className="font-mono text-xl font-bold text-[#06B6D4] tracking-wide">
+                {lead.phone_number}
+              </span>
+            </div>
+
+            {/* Name */}
+            <div className="flex items-center gap-2 text-sm">
+              <User className="w-4 h-4 text-[#94A3B8]/60 shrink-0" />
+              {lead.name ? (
+                <span className="text-[#F8FAFC] font-medium">{lead.name}</span>
+              ) : (
+                <span className="text-[#94A3B8] italic">Name unknown</span>
+              )}
+            </div>
+
+            {/* Timestamps */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
+                <Calendar className="w-3.5 h-3.5 text-[#94A3B8]/50 shrink-0" />
                 <span>Created {formatDateTime(lead.created_at)}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-slate-500">
-                <Tag className="w-4 h-4 text-slate-400 shrink-0" />
+              <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
+                <Tag className="w-3.5 h-3.5 text-[#94A3B8]/50 shrink-0" />
                 <span>Updated {formatDateTime(lead.updated_at)}</span>
               </div>
             </div>
           </div>
 
           {/* Right: Actions */}
-          <div className="flex flex-col gap-2 sm:items-end">
+          <div className="flex flex-col gap-3 sm:items-end shrink-0">
             {/* Status dropdown */}
-            <div className="relative">
-              <label className="text-xs text-slate-500 block mb-1">Update Status</label>
+            <div>
+              <label className="text-[10px] font-semibold text-[#94A3B8] uppercase tracking-wider block mb-1.5">
+                Update Status
+              </label>
               <div className="relative">
                 <select
                   value={lead.status}
-                  onChange={(e) => handleStatusChange(e.target.value as LeadStatus)}
+                  onChange={(e) =>
+                    handleStatusChange(e.target.value as LeadStatus)
+                  }
                   disabled={saving}
-                  className="appearance-none bg-white border border-slate-200 rounded-lg text-sm text-slate-700 pl-3 pr-8 py-2 cursor-pointer hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-[#0E7490] disabled:opacity-50"
+                  className="appearance-none text-sm font-medium pl-3.5 pr-9 py-2.5 rounded-lg cursor-pointer focus:outline-none disabled:opacity-50 transition-all"
+                  style={{
+                    background: "rgba(10, 22, 40, 0.8)",
+                    border: "1px solid rgba(14, 116, 144, 0.3)",
+                    color: "#F8FAFC",
+                    minWidth: "140px",
+                  }}
+                  onFocus={(e) => {
+                    (e.target as HTMLSelectElement).style.borderColor =
+                      "rgba(6, 182, 212, 0.6)";
+                    (e.target as HTMLSelectElement).style.boxShadow =
+                      "0 0 0 2px rgba(6, 182, 212, 0.1)";
+                  }}
+                  onBlur={(e) => {
+                    (e.target as HTMLSelectElement).style.borderColor =
+                      "rgba(14, 116, 144, 0.3)";
+                    (e.target as HTMLSelectElement).style.boxShadow = "none";
+                  }}
                 >
                   {STATUS_OPTIONS.map((s) => (
-                    <option key={s} value={s} className="capitalize">
+                    <option
+                      key={s}
+                      value={s}
+                      style={{ background: "#0F2040", color: "#F8FAFC" }}
+                    >
                       {s.charAt(0).toUpperCase() + s.slice(1)}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
               </div>
             </div>
+
+            {/* Mark as Qualified quick action */}
+            {lead.status !== "qualified" && (
+              <button
+                onClick={() => handleStatusChange("qualified")}
+                disabled={saving}
+                className="flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all"
+                style={{
+                  background: "rgba(16, 185, 129, 0.1)",
+                  border: "1px solid rgba(16, 185, 129, 0.25)",
+                  color: "#10B981",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "rgba(16, 185, 129, 0.18)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.background =
+                    "rgba(16, 185, 129, 0.1)";
+                }}
+              >
+                <CheckCircle className="w-4 h-4" />
+                Mark as Qualified
+              </button>
+            )}
 
             {/* Review request button */}
             {lead.status === "qualified" && (
               <button
                 onClick={handleReviewRequest}
                 disabled={reviewLoading || reviewSent}
-                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+                className="flex items-center gap-2 text-sm font-semibold px-4 py-2.5 rounded-lg transition-all disabled:opacity-60"
+                style={
+                  reviewSent
+                    ? {
+                        background: "rgba(16, 185, 129, 0.15)",
+                        border: "1px solid rgba(16, 185, 129, 0.3)",
+                        color: "#10B981",
+                      }
+                    : {
+                        background: "linear-gradient(135deg, #0E7490, #06B6D4)",
+                        border: "none",
+                        color: "#F8FAFC",
+                        boxShadow: "0 2px 10px rgba(6, 182, 212, 0.25)",
+                      }
+                }
               >
                 <Star className="w-4 h-4" />
                 {reviewSent
                   ? "Review Sent ✓"
                   : reviewLoading
-                  ? "Sending..."
+                  ? "Sending…"
                   : "Send Review Request"}
               </button>
             )}
@@ -206,13 +343,34 @@ export default function LeadDetailPage() {
       </div>
 
       {/* Conversation */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="font-semibold text-slate-700 text-sm">
-            Conversation
-          </h2>
-          <span className="text-xs text-slate-400">
-            {lead.messages.length} message{lead.messages.length !== 1 ? "s" : ""}
+      <div
+        className="rounded-xl overflow-hidden"
+        style={{
+          background: "rgba(15, 32, 64, 0.8)",
+          backdropFilter: "blur(12px)",
+          border: "1px solid rgba(14, 116, 144, 0.2)",
+        }}
+      >
+        <div
+          className="px-5 py-4 flex items-center justify-between"
+          style={{ borderBottom: "1px solid rgba(14, 116, 144, 0.15)" }}
+        >
+          <div className="flex items-center gap-2.5">
+            <MessageSquare className="w-4 h-4 text-[#0E7490]" />
+            <h2 className="font-semibold text-[#F8FAFC] text-sm">
+              Conversation
+            </h2>
+          </div>
+          <span
+            className="px-2.5 py-1 rounded-full text-[10px] font-bold"
+            style={{
+              background: "rgba(14, 116, 144, 0.15)",
+              border: "1px solid rgba(14, 116, 144, 0.2)",
+              color: "#0E7490",
+            }}
+          >
+            {lead.messages.length} msg
+            {lead.messages.length !== 1 ? "s" : ""}
           </span>
         </div>
         <div className="px-4 pb-4 max-h-[60vh] overflow-y-auto">

@@ -1,6 +1,14 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Dockline — Marine Business Lead Platform",
@@ -14,10 +22,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="flex h-screen overflow-hidden bg-slate-50">
+    <html lang="en" className={inter.variable} style={{ backgroundColor: "#0A1628" }}>
+      <body className="flex h-screen overflow-hidden bg-[#0A1628]">
         <Sidebar />
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-[#0A1628]">
+          {children}
+        </main>
       </body>
     </html>
   );
